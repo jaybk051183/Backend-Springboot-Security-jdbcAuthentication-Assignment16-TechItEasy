@@ -1,5 +1,7 @@
 package com.example.les13relationstechiteasy.config;
 
+import com.example.les13relationstechiteasy.filter.JwtRequestFilter;
+import com.example.les13relationstechiteasy.service.CustomUserDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,50 +19,60 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-public class SpringSecurityConfig  {
+public class SpringSecurityConfig {
 
-    private final JwtService jwtService;
-    private final UserRepository userRepository;
+    /*inject customUserDetailService en jwtRequestFilter*/
+private CustomUserDetailService customUserDetailService;
 
-    public  SpringSecurityConfig(JwtService service, UserRepository userRepos) {
-        this.jwtService = service;
-        this.userRepository = userRepos;
+private JwtRequestFilter jwtRequestFilter;
+
+
+    public SpringSecurityConfig(CustomUserDetailService customUserDetailService, JwtRequestFilter jwtRequestFilter) {
+        this.customUserDetailService = customUserDetailService;
+        this.jwtRequestFilter = jwtRequestFilter;
     }
 
+    // Authenticatie met customUserDetailsService en passwordEncoder
     @Bean
-    public AuthenticationManager authManager(HttpSecurity http, PasswordEncoder encoder, UserDetailsService udService) throws Exception {
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(udService)
-                .passwordEncoder(encoder)
+                .userDetailsService(customUserDetailsService)
+                .passwordEncoder(passwordEncoder())
                 .and()
                 .build();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new MyUserDetailsService(this.userRepository);
-    }
 
+    // PasswordEncoderBean. Deze kun je overal in je applicatie injecteren waar nodig.
+    // Je kunt dit ook in een aparte configuratie klasse zetten.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Authorizatie met jwt
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain filter (HttpSecurity http) throws Exception {
+
+        //JWT token authentication
         http
-                .httpBasic().disable()
+                .csrf().disable()
+                .httpBasic.disable()
+                .cors().and()
                 .authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth").permitAll()
-                .requestMatchers("/secret").hasAuthority("ADMIN")
-                .requestMatchers("/**").hasAnyAuthority("USER", "ADMIN")
+                .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
+                /*voeg de antmatchers toe voor admin(post en delete) en user (overige)*/
+                .requestMatchers("/authenticated").authenticated()
+                .requestMatchers("/authenticate").permitAll()/*allen dit punt mag toegankelijk zijn voor niet ingelogde gebruikers*/
                 .anyRequest().denyAll()
                 .and()
-                .addFilterBefore(new JwtRequestFilter(jwtService, userDetailsService()), UsernamePasswordAuthenticationFilter.class)
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 }
