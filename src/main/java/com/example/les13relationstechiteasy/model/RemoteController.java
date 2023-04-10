@@ -17,7 +17,10 @@ public class RemoteController {
     private Double price;
     private Integer originalStock;
 
+    // Deze annotatie geeft aan dat er een "one-to-one" relatie bestaat tussen de RemoteController entiteit en de Television entiteit.
+    //In dit geval betekent het dat één RemoteController object gerelateerd is aan één Television object. De mappedBy parameter in de annotatie geeft aan dat de relatie wordt gedefinieerd in de Television klasse met het veld remotecontroller.
     @OneToOne(mappedBy = "remotecontroller")
+    //Dit veld bevat een Television object dat gerelateerd is aan het huidige RemoteController object. Dit is de zogenaamde "target" kant van de one-to-one relatie.
     private Television television;
 
     public Long getId() {

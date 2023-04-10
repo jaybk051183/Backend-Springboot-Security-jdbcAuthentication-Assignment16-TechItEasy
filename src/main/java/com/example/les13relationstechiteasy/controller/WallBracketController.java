@@ -1,13 +1,60 @@
 package com.example.les13relationstechiteasy.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.les13relationstechiteasy.dto.TelevisionDto;
+import com.example.les13relationstechiteasy.dto.WallBracketDto;
+import com.example.les13relationstechiteasy.service.TelevisionWallBracketService;
+import com.example.les13relationstechiteasy.service.WallBracketService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
+import java.util.Collection;
+import java.util.List;
+
 @RequestMapping("wallbrackets")
+@RestController
 public class WallBracketController {
+    private final WallBracketService wallBracketService;
+    private final TelevisionWallBracketService televisionWallBracketService;
+    public WallBracketController(WallBracketService wallBracketService,
+                                 TelevisionWallBracketService televisionWallBracketService) {
+        this.wallBracketService = wallBracketService;
+        this.televisionWallBracketService = televisionWallBracketService;
+    }
 
-    public WallBracketController() {
+    @GetMapping
+    public ResponseEntity<List<WallBracketDto>> getAllWallBrackets() {
+        List<WallBracketDto> wallBrackets = wallBracketService.getAllWallBrackets();
+        return ResponseEntity.ok(wallBrackets);
+    }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<WallBracketDto> getWallBracket(@PathVariable("id") Long id) {
+        WallBracketDto wallBracketDto = wallBracketService.getWallBracket(id);
+        return ResponseEntity.ok(wallBracketDto);
+    }
+
+    @PostMapping
+    public ResponseEntity<WallBracketDto> addWallBracket(@RequestBody WallBracketDto dto) {
+        WallBracketDto wallBracket = wallBracketService.addWallbracket(dto);
+        return ResponseEntity.created(null).body(wallBracket);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteWallBracket(@PathVariable("id") Long id) {
+        wallBracketService.deleteWallBracket(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<WallBracketDto> updateWallBracket(@PathVariable("id") Long id, @RequestBody WallBracketDto dto) {
+        var returnDto = wallBracketService.updateWallBracket(id, dto);
+        return ResponseEntity.ok(returnDto);
+    }
+
+    // Deze methode haalt alle televisies op die aan een bepaalde wallbracket gekoppeld zijn.
+    // Deze methode maakt gebruikt van de televisionWallBracketService.
+    @GetMapping("/televisions/{wallBracketId}")
+    public ResponseEntity<Collection<TelevisionDto>> getTelevisionsByWallBracketId(@PathVariable("wallBracketId") Long wallBracketId){
+        return ResponseEntity.ok(televisionWallBracketService.getTelevisionsByWallBracketId(wallBracketId));
     }
 }

@@ -1,45 +1,179 @@
 package com.example.les13relationstechiteasy.dto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
-
+import javax.validation.constraints.*;
+//inputDTO-klasse die is ontworpen om informatie over een televisie-object te valideren en over te dragen tussen verschillende lagen van de applicatie. Het bevat velden met validatie-annotaties om ervoor te zorgen dat aan bepaalde voorwaarden wordt voldaan, evenals constructors, getters en setters om het object te initialiseren en te manipuleren.
 public class TelevisionInputDto {
+    //De klasse bevat een reeks privévelden die de eigenschappen van een televisie-object vertegenwoordigen. Deze velden hebben validatie-annotaties (zoals @NotNull, @Size, @Positive, @AssertTrue en @PositiveOrZero) om bepaalde voorwaarden voor de gegevens af te dwingen.
 
-    @NotBlank(message = "Type is verplicht")
+    @NotNull(message = "Type is required") // Type moet ingevuld verplicht worden in je JSON, je krijgt een message als je dit niet doet.
     private String type;
-
-    @NotBlank(message = "Merk is verplicht")
+    @NotNull(message = "Brand is required")
     private String brand;
-
-    @NotBlank(message = "Naam is verplicht")
+    @Size(max = 20, message = "Name must be between 0-20 characters") // maximale lengte van de string, min is automatisch 0.
     private String name;
-
-    @Positive(message = "Prijs moet een positief getal zijn")
+    @Positive(message = "Price must be higher than zero")
     private Double price;
-
-    @Positive(message = "AvailableSize moet een positief getal zijn")
     private Double availableSize;
-
-    @Positive(message = "RefreshRate moet een positief getal zijn")
     private Double refreshRate;
-
-    @NotBlank(message = "ScreenType is verplicht")
     private String screenType;
-
-    @NotBlank(message = "ScreenQuality is verplicht")
     private String screenQuality;
     private Boolean smartTv;
     private Boolean wifi;
     private Boolean voiceControl;
+    @AssertTrue(message = "All television must be hdr minimum")
     private Boolean hdr;
     private Boolean bluetooth;
     private Boolean ambiLight;
-
-    @PositiveOrZero(message = "OriginalStock moet een positief getal of nul zijn")
+    @PositiveOrZero(message = "Television cannot have negative stock")
     private Integer originalStock;
-
-    @PositiveOrZero(message = "Sold moet een positief getal of nul zijn")
     private Integer sold;
 
+    //Een overbelaste constructor (TelevisionInputDto(String type, String brand, ...) is gedefinieerd om het eenvoudiger te maken om een nieuw TelevisionInputDto object te maken met alle vereiste velden als argumenten.
+    public TelevisionInputDto(String type, String brand, String name, Double price, Double availableSize, Double refreshRate, String screenType, String screenQuality, Boolean smartTv, Boolean wifi, Boolean voiceControl, Boolean hdr, Boolean bluetooth, Boolean ambiLight, Integer originalStock, Integer sold) {
+        this.type = type;
+        this.brand = brand;
+        this.name = name;
+        this.price = price;
+        this.availableSize = availableSize;
+        this.refreshRate = refreshRate;
+        this.screenType = screenType;
+        this.screenQuality = screenQuality;
+        this.smartTv = smartTv;
+        this.wifi = wifi;
+        this.voiceControl = voiceControl;
+        this.hdr = hdr;
+        this.bluetooth = bluetooth;
+        this.ambiLight = ambiLight;
+        this.originalStock = originalStock;
+        this.sold = sold;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public Double getAvailableSize() {
+        return availableSize;
+    }
+
+    public Double getRefreshRate() {
+        return refreshRate;
+    }
+
+    public String getScreenType() {
+        return screenType;
+    }
+
+    public String getScreenQuality() {
+        return screenQuality;
+    }
+
+    public Boolean getSmartTv() {
+        return smartTv;
+    }
+
+    public Boolean getWifi() {
+        return wifi;
+    }
+
+    public Boolean getVoiceControl() {
+        return voiceControl;
+    }
+
+    public Boolean getHdr() {
+        return hdr;
+    }
+
+    public Boolean getBluetooth() {
+        return bluetooth;
+    }
+
+    public Boolean getAmbiLight() {
+        return ambiLight;
+    }
+
+    public Integer getOriginalStock() {
+        return originalStock;
+    }
+
+    public Integer getSold() {
+        return sold;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public void setAvailableSize(Double availableSize) {
+        this.availableSize = availableSize;
+    }
+
+    public void setRefreshRate(Double refreshRate) {
+        this.refreshRate = refreshRate;
+    }
+
+    public void setScreenType(String screenType) {
+        this.screenType = screenType;
+    }
+
+    public void setScreenQuality(String screenQuality) {
+        this.screenQuality = screenQuality;
+    }
+
+    public void setSmartTv(Boolean smartTv) {
+        this.smartTv = smartTv;
+    }
+
+    public void setWifi(Boolean wifi) {
+        this.wifi = wifi;
+    }
+
+    public void setVoiceControl(Boolean voiceControl) {
+        this.voiceControl = voiceControl;
+    }
+
+    public void setHdr(Boolean hdr) {
+        this.hdr = hdr;
+    }
+
+    public void setBluetooth(Boolean bluetooth) {
+        this.bluetooth = bluetooth;
+    }
+
+    public void setAmbiLight(Boolean ambiLight) {
+        this.ambiLight = ambiLight;
+    }
+
+    public void setOriginalStock(Integer originalStock) {
+        this.originalStock = originalStock;
+    }
+
+    public void setSold(Integer sold) {
+        this.sold = sold;
+    }
 }
+

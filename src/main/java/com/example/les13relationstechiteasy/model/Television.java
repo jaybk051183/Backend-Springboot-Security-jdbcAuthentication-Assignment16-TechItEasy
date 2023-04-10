@@ -1,8 +1,11 @@
 package com.example.les13relationstechiteasy.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
-import java.util.List;
+import java.util.Collection;
 
 @Entity
 public class Television {
@@ -26,19 +29,68 @@ public class Television {
     private Integer originalStock;
     private Integer sold;
 
+    // Dit is de owner kan van de relatie. Er staat een foreign key in de database
+    //Deze annotatie geeft aan dat er een "one-to-one" relatie bestaat tussen de Television entiteit en de RemoteController entiteit.
     @OneToOne
     private RemoteController remotecontroller;
 
+    // Dit is de owner kan van de relatie. Er staat een foreign key in de database
+    //Deze annotaties geven aan dat er een "many-to-one" relatie bestaat tussen de Television entiteit en de CIModule entiteit. De Television entiteit is de eigenaar van deze relatie.
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ci_module_id")
+    private CIModule ciModule;
+
+    // Dit is de target kant van de relatie. Er staat niks in de database
+    // Deze annotaties geven aan dat er een "one-to-many" relatie bestaat tussen de Television entiteit en de TelevisionWallBracket entiteit. De Television entiteit is de doelkant van deze relatie.
     @OneToMany(mappedBy = "television")
-    private List<CiModule> modules;
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore
+    Collection<TelevisionWallBracket> televisionWallBrackets;
 
-    @ManyToMany
-    @JoinTable(
-            name = "television_wallbracket",
-            joinColumns = @JoinColumn(name = "wallbracket_id"),
-            inverseJoinColumns = @JoinColumn(name = "television_id"))
-    private List<WallBracket> wallbrackets;
+    //Constructors
+    //    constructors hoeven niet per se aangemaakt te worden
+    // Een default constructor
+    public Television() {}
 
+    // Een constructor met alle gevraagde variable
+    public Television(
+            Long id,
+            String type,
+            String brand,
+            String name,
+            Double price,
+            Double availableSize,
+            Double refreshRate,
+            String screenType,
+            String screenQuality,
+            Boolean smartTv,
+            Boolean wifi,
+            Boolean voiceControl,
+            Boolean hdr,
+            Boolean bluetooth,
+            Boolean ambiLight,
+            Integer originalStock,
+            Integer sold ) {
+        this.id = id;
+        this.type = type;
+        this.brand = brand;
+        this.name = name;
+        this.price = price;
+        this.availableSize = availableSize;
+        this.refreshRate = refreshRate;
+        this.screenType = screenType;
+        this.screenQuality = screenQuality;
+        this.smartTv = smartTv;
+        this.wifi = wifi;
+        this.voiceControl = voiceControl;
+        this.hdr = hdr;
+        this.bluetooth = bluetooth;
+        this.ambiLight = ambiLight;
+        this.originalStock = originalStock;
+        this.sold = sold;
+    }
+
+    //Getters & Setters
     public Long getId() {
         return id;
     }
@@ -171,12 +223,12 @@ public class Television {
         this.sold = sold;
     }
 
-    public List<WallBracket> getWallbrackets() {
-        return wallbrackets;
+    public Collection<TelevisionWallBracket> getTelevisionWallBrackets() {
+        return televisionWallBrackets;
     }
 
-    public void setWallbrackets(List<WallBracket> wallbrackets) {
-        this.wallbrackets = wallbrackets;
+    public void setTelevisionWallBrackets(Collection<TelevisionWallBracket> televisionWallBrackets) {
+        this.televisionWallBrackets = televisionWallBrackets;
     }
 
     public void setId(Long id) {
@@ -191,11 +243,11 @@ public class Television {
         this.remotecontroller = remotecontroller;
     }
 
-    public List<CiModule> getModules() {
-        return modules;
+    public CIModule getCIModules() {
+        return ciModule;
     }
 
-    public void setModules(List<CiModule> modules) {
-        this.modules = modules;
+    public void setCIModules(CIModule ciModule) {
+        this.ciModule = ciModule;
     }
 }

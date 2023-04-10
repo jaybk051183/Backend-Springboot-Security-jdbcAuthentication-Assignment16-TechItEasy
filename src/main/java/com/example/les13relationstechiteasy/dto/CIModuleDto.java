@@ -1,19 +1,20 @@
-package com.example.les13relationstechiteasy.model;
+package com.example.les13relationstechiteasy.dto;
 
-import jakarta.persistence.*;
+public class CIModuleDto {
+    public  Long id;
+    public String name;
+    public String type;
+    public Double price;
 
-@Entity
-public class CiModule {
-    @Id
-    @GeneratedValue
-    private  Long id;
-    private String name;
-    private String type;
-    private Double price;
+    public CIModuleDto() {
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "television_id")
-    private Television television;
+    public CIModuleDto(Long id, String name, String type, Double price) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.price = price;
+    }
 
     public Long getId() {
         return id;
@@ -47,11 +48,4 @@ public class CiModule {
         this.price = price;
     }
 
-    public Television getTelevision() {
-        return television;
-    }
-
-    public void setTelevision(Television television) {
-        this.television = television;
-    }
 }
