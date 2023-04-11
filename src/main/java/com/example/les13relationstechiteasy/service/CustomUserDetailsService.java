@@ -6,26 +6,27 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 /*annotatie*/
-public class CustomUserDetailService implements UserDetailsService {
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
 
     /*inject userservice */
+    private final UserService userService;
 
-    private UserService userService;
+    public CustomUserDetailsService(UserService userService) {
 
-    public CustomUserDetailService(UserService userService) {
         this.userService = userService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) {
         UserDto userDto = UserService.getUser(username);
-
 
         String password = userDto.getPassword();
 

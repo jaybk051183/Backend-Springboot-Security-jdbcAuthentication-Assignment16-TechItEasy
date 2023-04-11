@@ -1,13 +1,11 @@
 package com.example.les13relationstechiteasy.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 
 /*annotatie*/
+@Entity
 @IdClass(AuthorityKey.class)
 @Table(name = "authorities")
 public class Authority implements Serializable {

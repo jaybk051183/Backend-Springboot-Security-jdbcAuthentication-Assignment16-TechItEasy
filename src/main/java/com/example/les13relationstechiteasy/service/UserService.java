@@ -41,7 +41,7 @@ public class UserService {
         if (user.isPresent()){
             dto = fromUser(user.get());
         }else {
-            throw new /*exception*/(username);
+            throw new UsernameNotFoundException(username);
         }
         return dto;
     }
@@ -58,37 +58,37 @@ public class UserService {
     }
 
     public void deleteUser(String username) {
-        /*repo*/.deleteById(username);
+        repos.deleteById(username);
     }
 
     public void updateUser(String username, UserDto newUser) {
-        if (!repos.existsById(username)) throw new /*exception*/();
+        if (!repos.existsById(username)) throw new UsernameNotFoundException(username);
         User user = repos.findById(username).get();
         user.setPassword(newUser.getPassword());
-        /*repo*/.save(user);
+        /*repo*/repos.save(user);
     }
 
     public Set<Authority> getAuthorities(String username) {
-        if (!/*repo*/.existsById(username)) throw new /*exception*/(username);
-        User user = /*repo*/.findById(username).get();
+        if (!repos.existsById(username)) throw new UsernameNotFoundException(username);
+        User user = repos.findById(username).get();
         UserDto userDto = fromUser(user);
         return userDto.getAuthorities();
     }
 
     public void addAuthority(String username, String authority) {
 
-        if (!/*repo*/.existsById(username)) throw new /*exception*/(username);
-        User user = /*repo*/.findById(username).get();
+        if (!repos.existsById(username)) throw new UsernameNotFoundException(username);
+        User user = repos.findById(username).get();
         user.addAuthority(new Authority(username, authority));
-        /*repo*/.save(user);
+        repos.save(user);
     }
 
     public void removeAuthority(String username, String authority) {
-        if (!/*repo*/.existsById(username)) throw new /*exception*/(username);
-        User user = /*repo*/.findById(username).get();
+        if (!repos.existsById(username)) throw new UsernameNotFoundException(username);
+        User user = repos.findById(username).get();
         Authority authorityToRemove = user.getAuthorities().stream().filter((a) -> a.getAuthority().equalsIgnoreCase(authority)).findAny().get();
         user.removeAuthority(authorityToRemove);
-        /*repo*/.save(user);
+        repos.save(user);
     }
 
     public static UserDto fromUser(User user){

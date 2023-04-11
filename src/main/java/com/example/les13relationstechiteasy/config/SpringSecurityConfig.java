@@ -1,7 +1,7 @@
 package com.example.les13relationstechiteasy.config;
 
 import com.example.les13relationstechiteasy.filter.JwtRequestFilter;
-import com.example.les13relationstechiteasy.service.CustomUserDetailService;
+import com.example.les13relationstechiteasy.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,13 +21,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SpringSecurityConfig {
 
     /*inject customUserDetailService en jwtRequestFilter*/
-private CustomUserDetailService customUserDetailService;
+private final CustomUserDetailsService customUserDetailsService;
 
-private JwtRequestFilter jwtRequestFilter;
+private final JwtRequestFilter jwtRequestFilter;
 
 
-    public SpringSecurityConfig(CustomUserDetailService customUserDetailService, JwtRequestFilter jwtRequestFilter) {
-        this.customUserDetailService = customUserDetailService;
+    public SpringSecurityConfig(CustomUserDetailsService customUserDetailsService, JwtRequestFilter jwtRequestFilter) {
+        this.customUserDetailsService = customUserDetailsService;
         this.jwtRequestFilter = jwtRequestFilter;
     }
 
@@ -41,7 +40,6 @@ private JwtRequestFilter jwtRequestFilter;
                 .and()
                 .build();
     }
-
 
     // PasswordEncoderBean. Deze kun je overal in je applicatie injecteren waar nodig.
     // Je kunt dit ook in een aparte configuratie klasse zetten.
@@ -57,14 +55,26 @@ private JwtRequestFilter jwtRequestFilter;
         //JWT token authentication
         http
                 .csrf().disable()
-                .httpBasic.disable()
+                .httpBasic().disable()
                 .cors().and()
                 .authorizeHttpRequests()
+                // Wanneer je deze uncomments, staat je hele security open. Je hebt dan alleen nog een jwt nodig.
+//                .requestMatchers("/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .requestMatchers(HttpMethod.GET,"/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,"/users/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
                 /*voeg de antmatchers toe voor admin(post en delete) en user (overige)*/
+                .requestMatchers(HttpMethod.POST, "/cimodules").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/cimodules/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/remotecontrollers").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/remotecontrollers/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/televisions").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/televisions/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/wallbrackets").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/wallbrackets/**").hasRole("ADMIN")
+                // Je mag meerdere paths tegelijk definieren
+                .requestMatchers("/cimodules", "/remotecontrollers", "/televisions", "/wallbrackets").hasAnyRole("ADMIN", "USER")
                 .requestMatchers("/authenticated").authenticated()
                 .requestMatchers("/authenticate").permitAll()/*allen dit punt mag toegankelijk zijn voor niet ingelogde gebruikers*/
                 .anyRequest().denyAll()
