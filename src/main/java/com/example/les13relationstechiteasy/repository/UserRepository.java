@@ -1,6 +1,8 @@
 package com.example.les13relationstechiteasy.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import com.example.les13relationstechiteasy.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends CrudRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, String> {
+
 }

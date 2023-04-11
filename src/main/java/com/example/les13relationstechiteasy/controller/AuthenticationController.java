@@ -1,46 +1,73 @@
 package com.example.les13relationstechiteasy.controller;
 
+import com.example.les13relationstechiteasy.payload.AuthenticationRequest;
+import com.example.les13relationstechiteasy.payload.AuthenticationResponse;
+import com.example.les13relationstechiteasy.utils.JwtUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.*;
 
 
+import java.security.Principal;
+
+@CrossOrigin
 @RestController
 public class AuthenticationController {
 
-    private final AuthenticationManager authManager;
-    private final JwtService jwtService;
+    /*inject authentionManager, userDetailService en jwtUtil*/
+    private AuthenticationManager authenticationManager;
 
-    public AuthenticationController(AuthenticationManager man, JwtService service) {
-        this.authManager = man;
-        this.jwtService = service;
+    private UserDetailsService userDetailsService;
+
+    private JwtUtil jwtUtil;
+
+
+    public AuthenticationController(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/auth")
-    public ResponseEntity<Object> signIn(@RequestBody AuthDto authDto) {
-        UsernamePasswordAuthenticationToken up =
-                new UsernamePasswordAuthenticationToken(authDto.username, authDto.password);
+    /*
+             Deze methode geeft de principal (basis user gegevens) terug van de ingelogde gebruiker
+         */
+    @GetMapping(value = "/authenticated")
+    public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
+        return ResponseEntity.ok().body(principal);
+    }
+
+    /*
+    Deze methode geeft het JWT token terug wanneer de gebruiker de juiste inloggegevens op geeft.
+     */
+    @PostMapping(value = "/authenticate")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+
+        String username = authenticationRequest.getUsername();
+        String password = authenticationRequest.getPassword();
 
         try {
-            Authentication auth = authManager.authenticate(up);
-
-            UserDetails ud = (UserDetails) auth.getPrincipal();
-            String token = jwtService.generateToken(ud);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .body("Token generated");
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
         }
-        catch (AuthenticationException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        catch (BadCredentialsException ex) {
+            throw new Exception("Incorrect username or password", ex);
         }
+
+        final UserDetails userDetails = userDetailsService
+                .loadUserByUsername(username);
+
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
+
 }
